@@ -1,9 +1,8 @@
-package com.example.repository;
+package com.example.transactionalDeadLock.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import com.example.entity.Member;
+import com.example.transactionalDeadLock.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 

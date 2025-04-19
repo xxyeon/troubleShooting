@@ -1,4 +1,4 @@
-package com.example.entity;
+package com.example.transactionalDeadLock.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

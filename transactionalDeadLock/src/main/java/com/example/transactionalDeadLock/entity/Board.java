@@ -1,4 +1,4 @@
-package com.example.entity;
+package com.example.transactionalDeadLock.entity;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 
 import lombok.Getter;
@@ -44,7 +45,12 @@ public class Board {
         this.member = member;
     }
 
-    public void updateLike(int like) {
-        this.likes = like;
+    public void updateLike() {
+        likes++;
     }
+
+
+    @Version
+    @Getter
+    private int version;
 }
