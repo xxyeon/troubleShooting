@@ -1,5 +1,6 @@
 package com.example.transactionalDeadLock.service;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,7 +64,7 @@ public class BoardServiceTest {
 			executorService.submit(() -> {
 				try {
 					Member member = memberRepository.save(new Member("test@gmail.com", "username", "1234"));
-					boardService.saveLike_jpqlDeadLock(board.getId(), member);
+					boardService.saveLike_DeadLock(board.getId(), member);
 				} catch (Exception e) {
 					log.error("Exception", e);
 				} finally {
@@ -103,6 +104,31 @@ public class BoardServiceTest {
 	}
 
 	@Test
+	@DisplayName("@Version")
+	void optimisticLock() throws Exception {
+		for (int i = 0; i < TOTAL_COUNT; i++) {
+
+			executorService.submit(() -> {
+				try {
+					Member member = memberRepository.save(new Member("test@gmail.com", "username", "1234"));
+					boardService.saveLike_optimisticLock(board.getId(), member);
+				} catch (Exception e) {
+					log.error("Exception", e);
+				} finally {
+					latch.countDown();
+				}
+			});
+		}
+
+		latch.await();
+
+		assertThat(board.getLikes()).isNotEqualTo(TOTAL_COUNT);
+		// assertThat(likeRepository.findByBoard(board).size()).isNotEqualTo(TOTAL_COUNT);
+	}
+
+
+
+	@Test
 	@DisplayName("board 좋아요 수 늘리는 순서 변경 + JPQL -> 레코드 락")
 	void recordLock() throws Exception {
 		int like;
@@ -129,7 +155,7 @@ public class BoardServiceTest {
 
 	@Test
 	@DisplayName("JPQL + 낙관락 적용")
-	void optimisticLock() throws Exception {
+	void optimisticLockAndJpql() throws Exception {
 		for (int i = 0; i < TOTAL_COUNT; i++) {
 
 			executorService.submit(() -> {

@@ -1,5 +1,6 @@
 package com.example.transactionalDeadLock.service;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,9 +48,22 @@ public class BoardService {
     }
 
     @Transactional
+    public void saveLike_optimisticLock(Long id, Member member) {
+        Board findBoard = getBoardById(id);
+
+        Like like = likeRepository.findByMemberAndBoard(member, findBoard)
+            .orElse(Like.builder()
+                .board(findBoard)
+                .member(member).build());
+        findBoard.updateLike();
+        likeRepository.save(like);
+    }
+
+
+    @Transactional
     public void saveLike_jpql(Long id, Member member) {
 
-        Board findBoard = getBoardById(id);
+        Board findBoard = getBoardById(id); //이건 단순 호출이므로 lock이 안걸림
 
         Like like = likeRepository.findByMemberAndBoard(member, findBoard)
             .orElse(Like.builder()
@@ -64,20 +78,20 @@ public class BoardService {
     @Transactional
     public void saveLike_jpqlAndOptimisticLock(Long id, Member member) {
 
-        Board findBoard = getBoardById(id);
+        Board findBoard = boardRepository.getReferenceById(id);
 
+        int likeCnt = findBoard.getLikes() + 1;
+
+        int updatedCount = boardRepository.updateLikesWithOptimisticLock(likeCnt, findBoard.getId(), findBoard.getVersion());
+
+        if (updatedCount == 0) {
+            throw new OptimisticLockingFailureException("Board version mismatch");
+        }
         Like like = likeRepository.findByMemberAndBoard(member, findBoard)
             .orElse(Like.builder()
                 .board(findBoard)
                 .member(member).build());
-
-
-        int likeCnt = findBoard.getLikes() + 1;
-        boardRepository.updateLikesWithOptimisticLock(likeCnt, findBoard.getId(), findBoard.getVersion());
         likeRepository.save(like);
-
-        boardRepository.updateCountOfLike(likeCnt, findBoard.getId());
-
     }
 
     @Transactional

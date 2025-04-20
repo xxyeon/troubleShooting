@@ -20,8 +20,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 	void updateCountOfLike(@Param("count") int count, @Param("boardId") Long boardId);
 
 	@Modifying
-	@Query("update Board b set b.likes = :count where b.id = :boardId and b.version = :version")
-	void updateLikesWithOptimisticLock(@Param("count") int count, @Param("boardId") Long boardId, @Param("version") int version);
+	@Query("update Board b set b.likes = :count, b.version = :version + 1 where b.id = :boardId and b.version = :version")
+	int updateLikesWithOptimisticLock(@Param("count") int count, @Param("boardId") Long boardId, @Param("version") int version);
 
 	@Modifying
 	@Query("update Board b set b.likes = b.likes + 1 where b.id = :id")

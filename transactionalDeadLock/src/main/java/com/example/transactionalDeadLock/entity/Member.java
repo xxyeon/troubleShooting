@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class Member {
     @Id
     @GeneratedValue
     @Column(name = "member_id")
+    @Getter
     private Long id;
     private String email;
     private String username;
