@@ -69,11 +69,40 @@ class AsynApplicationTests {
 		System.out.println("[" + LocalTime.now() + "] 메인 스레드 - get() 호출 시작");
 
 		// 📦 get() 호출 → 각각 완료될 때까지 대기
-		System.out.println("결과1: " + f1.get());
-		System.out.println("결과2: " + f2.get());
-		System.out.println("결과3: " + f3.get());
-		System.out.println("결과4: " + f4.get());
+		// System.out.println("결과1: " + f1.get());
+		// System.out.println("결과2: " + f2.get());
+		// System.out.println("결과3: " + f3.get());
+		// System.out.println("결과4: " + f4.get());
 
+
+		executor.shutdown();
+	}
+	@Test
+	@DisplayName("get() 없이 비동기 작업이 실제 실행되는지 확인")
+	void asyncWithoutGet() throws InterruptedException {
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+
+		Supplier<String> slowTask = () -> {
+			String threadName = Thread.currentThread().getName();
+			System.out.println("[" + LocalTime.now() + "] " + threadName + " - 작업 시작");
+			try {
+				Thread.sleep(3000); // 3초 지연
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			System.out.println("[" + LocalTime.now() + "] " + threadName + " - 작업 완료");
+			return "완료";
+		};
+
+		// get() 없이 비동기 작업만 등록
+		CompletableFuture.supplyAsync(slowTask, executor);
+		CompletableFuture.supplyAsync(slowTask, executor);
+		CompletableFuture.supplyAsync(slowTask, executor);
+
+		// 메인 스레드는 바로 종료되지 않도록 대기 (조금만 기다려보자)
+		Thread.sleep(10000); // get() 없이도 백그라운드 작업 로그 확인용
+
+		System.out.println("[" + LocalTime.now() + "] 메인 스레드 종료");
 
 		executor.shutdown();
 	}
