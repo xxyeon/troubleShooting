@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<form id="resourceForm" action="http://localhost:8080/resource" method="post">
+    <div>
+        <label>client</label>
+        <input name="client">
+    </div>
+    <div>
+        <label>accountName</label>
+        <input name="accountName">
+    </div>
+    <div>
+        <label>accountId</label>
+        <input name="accountId">
+    </div>
+    <div>
+        <label>service</label>
+        <input name="service">
+    </div>
+    <div>
+        <label>fromDate</label>
+        <input name="fromDate" placeholder="2025-01-13 11:27:04">
+    </div>
+    <div>
+        <label>toDate</label>
+        <input name="toDate" placeholder="2025-01-13 11:27:04">
+    </div>
+    <div>
+        <label>searchDate</label>
+        <input name="searchDate" placeholder="2025-01-13 11:27:04">
+    </div>
+    <div>
+        <label>serviceDetail</label>
+        <input name="serviceDetail" placeholder="2025-01-13 11:27:04">
+    </div>
+    <div>
+        <label>changeOrNot</label>
+        <input name="changeOrNot" placeholder="예/아니오">
+    </div>
+    <div>
+        <label>compliance</label>
+        <input name="compliance" placeholder="예/아니오">
+    </div>
+
+    <button type="submit" id="resource">resource</button>
+</form>
+
+<form id="memberForm">
+    <button type="submit" id="member">member</button>
+</form>
+<a href="http://localhost:8080/v2">ver2로 바로가기</a>
+
+
+</body>
+<script>
+    async function resourceAPI(form) {
+        const response = await fetch("http://localhost:8080/resource", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                client: form.client.value,
+                accountName: form.accountName.value,
+                accountId: form.accountId.value,
+                service: form.service.value,
+                fromDate: form.fromDate.value,
+                toDate: form.toDate.value,
+                searchDate: form.searchDate.value,
+                serviceDetail: form.serviceDetail.value,
+                changeOrNot: form.changeOrNot.value,
+                compliance: form.compliance.value,
+            })
+        });
+
+        if (!response.ok) {
+            alert("파일 다운로드 실패");
+            return;
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "resource.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(downloadUrl);
+    }
+
+    const resourceForm = document.getElementById("resourceForm");
+    resourceForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await resourceAPI(resourceForm);
+    });
+
+    const memberForm = document.getElementById("memberForm");
+    memberForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Member API 호출 예정");
+    });
+
+</script>
+</html>

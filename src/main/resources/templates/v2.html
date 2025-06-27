@@ -8,7 +8,7 @@
     <title>Document</title>
 </head>
 <body>
-<form id="resourceForm" action="http://localhost:8080/resource" method="post">
+<form id="resourceForm">
     <div>
         <label>client</label>
         <input name="client">
@@ -54,6 +54,28 @@
 </form>
 
 <form id="memberForm">
+    <div>
+        <label>ID</label>
+        <input name="id">
+    </div>
+    <div>
+        <label>고객사</label>
+        <input name="client">
+    </div>
+    <div>
+        <label>권한</label>
+        <input name="role">
+    </div>
+    <div>
+        <label>검색어</label>
+        <input name="searchData">
+    </div>
+    <div>
+        <label>checkList</label>
+        <input name="checkList">
+    </div>
+
+
     <button type="submit" id="member">member</button>
 </form>
 
@@ -61,7 +83,7 @@
 </body>
 <script>
     async function resourceAPI(form) {
-        const response = await fetch("http://localhost:8080/resource", {
+        const response = await fetch("http://localhost:8080/v2/resource", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -95,16 +117,49 @@
         URL.revokeObjectURL(downloadUrl);
     }
 
+
     const resourceForm = document.getElementById("resourceForm");
     resourceForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         await resourceAPI(resourceForm);
     });
 
+
+    async function memberAPI(form) {
+        const input = form.checkList.value;
+        const longList = input.split(',').map(s => Number(s.trim()));
+        const response = await fetch("http://localhost:8080/v2/member", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: form.id.value,
+                client: form.client.value,
+                role: form.role.value,
+                searchData: form.searchData.value,
+                checkList: longList
+            })
+        });
+
+        if (!response.ok) {
+            alert("파일 다운로드 실패");
+            return;
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "resource.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(downloadUrl);
+    }
     const memberForm = document.getElementById("memberForm");
-    memberForm.addEventListener("submit", (e) => {
+    memberForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        alert("Member API 호출 예정");
+        await memberAPI(memberForm);
     });
 
 </script>
