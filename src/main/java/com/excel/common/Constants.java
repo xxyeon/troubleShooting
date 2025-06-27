@@ -1,4 +1,4 @@
-package com.excel.v1.common;
+package com.excel.common;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
