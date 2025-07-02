@@ -38,7 +38,7 @@ public static ExcelRenderResource prepareRenderResource(Class<? extends BaseXlsx
   }
 ```
 위 조건을 추가하여 웹 서버에 캐싱된 인스턴스가 있다면 인스턴스를 재사용하도록 구현했습니다.
-# 커스텀 어노테이션 구현하여 객체마다 엑셀 헤더 값 설정\
+# 커스텀 어노테이션 구현하여 객체마다 엑셀 헤더 값 설정
 ## 어노테이션 적용 전
 기존에는 헤더 값을 설정하기 위해 하드코딩으로 구현했습니다.
 ```java
